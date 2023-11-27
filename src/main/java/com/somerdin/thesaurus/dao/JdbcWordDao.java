@@ -17,7 +17,7 @@ public class JdbcWordDao implements WordDao {
 
     @Override
     public List<String> getWordSynonyms(String word) {
-        String sql = "SELECT synonym FROM word_synonyms WHERE word = ?;";
+        String sql = "SELECT synonym FROM word_synonyms WHERE word ilike ?;";
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, word);
         
         List<String> synonyms = new ArrayList<>();
