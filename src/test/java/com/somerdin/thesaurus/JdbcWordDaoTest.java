@@ -2,12 +2,12 @@ package com.somerdin.thesaurus;
 
 import com.somerdin.thesaurus.dao.JdbcWordDao;
 import com.somerdin.thesaurus.dao.WordDao;
+import com.somerdin.thesaurus.util.SqlDataSourceUtil;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.jupiter.api.BeforeAll;
-import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 public class JdbcWordDaoTest {
@@ -25,14 +25,8 @@ public class JdbcWordDaoTest {
         setup();
     }
 
-    @BeforeAll
     public void setup() {
-        PGSimpleDataSource source = new PGSimpleDataSource();
-        source.setServerName("localhost");
-        source.setPortNumber(5432);
-        source.setUser("postgres");
-        source.setPassword("postgres1");
-        source.setDatabaseName("thesaurus");
+        DataSource source = SqlDataSourceUtil.getDataSource();
         dao = new JdbcWordDao(new JdbcTemplate(source));
     }
 

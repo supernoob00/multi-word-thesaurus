@@ -1,14 +1,10 @@
 package com.somerdin.thesaurus.util;
 
-import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
-import java.io.*;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.logging.Logger;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class DatabaseInsertUtil {
     public static final String TEXT_FILE = "mobythes.txt";
@@ -17,13 +13,7 @@ public class DatabaseInsertUtil {
     private final JdbcTemplate template;
 
     private DatabaseInsertUtil() {
-        PGSimpleDataSource source = new PGSimpleDataSource();
-        source.setServerName("localhost");
-        source.setPortNumber(5432);
-        source.setUser("postgres");
-        source.setPassword("postgres1");
-        source.setDatabaseName("thesaurus");
-        template = new JdbcTemplate(source);
+        template = new JdbcTemplate(SqlDataSourceUtil.getDataSource());
     }
 
     // TODO: FAILS IF DUPLICATES ARE AT LAST LINES OF FILE

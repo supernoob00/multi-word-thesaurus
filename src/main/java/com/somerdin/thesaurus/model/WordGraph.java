@@ -5,6 +5,7 @@ import com.somerdin.thesaurus.dao.WordDao;
 import java.util.*;
 
 public class WordGraph {
+    public static final int SEARCH_DEPTH = 2;
     /**
      * Data class for a graph vertex, which holds both the word as well as
      * the id (determined by the origin vertex). The id is kept so that only
@@ -16,7 +17,13 @@ public class WordGraph {
     // map of all vertices to minimum depth it took to reach from an origin
     private Map<String, Integer> depths;
 
-    public void addWord(String word, int searchDepth) {
+    public WordGraph(WordDao dao) {
+        this.dao = dao;
+        this.graph = new HashMap<>();
+        this.depths = new HashMap<>();
+    }
+
+    public void addWord(String word) {
         if (graph.containsKey(word)) {
             return;
         }
@@ -24,7 +31,7 @@ public class WordGraph {
         queue.add(word);
         depths.put(word, 0);
 
-        for (int i = 1; i <= searchDepth && !queue.isEmpty(); i++) {
+        for (int i = 1; i <= SEARCH_DEPTH && !queue.isEmpty(); i++) {
             int size = queue.size();
             for (int k = 0; k < size; k++) {
                 word = queue.remove();
@@ -45,6 +52,15 @@ public class WordGraph {
                 }
             }
         }
+    }
+
+    public Set<String> getNeighbors(String word) {
+        Set<String> neighbors = graph.get(word);
+        return neighbors == null ? new HashSet<>() : neighbors;
+    }
+
+    public int size() {
+        return graph.size();
     }
 
     private boolean add(String origin, String dest) {
