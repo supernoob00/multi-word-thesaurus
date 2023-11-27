@@ -14,8 +14,9 @@ public class WordGraph {
 
     private WordDao dao;
     private Map<String, Set<String>> graph;
-    // map of all vertices to minimum depth it took to reach from an origin
-    private Map<String, Integer> depths;
+    // map of all vertices to depth of search from that vertex (zero means
+    // it is a terminal vertex)
+    public Map<String, Integer> depths;
 
     public WordGraph(WordDao dao) {
         this.dao = dao;
@@ -23,31 +24,39 @@ public class WordGraph {
         this.depths = new HashMap<>();
     }
 
-    public void addWord(String word) {
-        if (graph.containsKey(word)) {
+    public void addWord(String word, int depth) {
+        if (depths.containsKey(word) && depths.get(word) == 0) {
             return;
         }
-        Queue<String> queue = new ArrayDeque<>();
-        queue.add(word);
-        depths.put(word, 0);
 
-        for (int i = 1; i <= SEARCH_DEPTH && !queue.isEmpty(); i++) {
+        Set<String> searched = new HashSet<>();
+        Queue<String> queue = new ArrayDeque<>();
+
+        queue.add(word);
+        depths.put(word, depth);
+
+        for (; depth > 0 && !queue.isEmpty(); depth--) {
             int size = queue.size();
             for (int k = 0; k < size; k++) {
                 word = queue.remove();
 
-                if (!graph.containsKey(word)) {
-                    graph.put(word, new HashSet<>(dao.getWordSynonyms(word)));
-                }
-                if (!depths.containsKey(word) || depths.get(word) > i) {
+                Collection<String> synonyms = dao.getWordSynonyms(word);
+                graph.merge(word, new HashSet<>(synonyms), (strings, strings2) -> {
+                    strings.addAll(strings2);
+                    return strings;
+                });
+
+                if (!searched.contains(word)
+                        || (!depths.containsKey(word) || depths.get(word) < depth)) {
+                    searched.add(word);
+
                     for (String neighbor : graph.get(word)) {
-                        if (!graph.containsKey(neighbor)) {
-                            graph.put(neighbor, new HashSet<>(List.of(word)));
-                        } else {
-                            graph.get(neighbor).add(word);
-                        }
+                        graph.merge(neighbor, new HashSet<>(List.of(word)), (s, w) -> {
+                            s.addAll(w);
+                            return s;
+                        });
+                        depths.merge(neighbor, depth - 1, Math::min);
                         queue.add(neighbor);
-                        depths.put(neighbor, i);
                     }
                 }
             }
@@ -61,6 +70,13 @@ public class WordGraph {
 
     public int size() {
         return graph.size();
+    }
+
+    public int depthFrom(String word) throws NoSuchElementException {
+        if (!depths.containsKey(word)) {
+            throw new NoSuchElementException();
+        }
+        return depths.get(word);
     }
 
     private boolean add(String origin, String dest) {

@@ -5,6 +5,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -16,7 +17,7 @@ public class JdbcWordDao implements WordDao {
     }
 
     @Override
-    public List<String> getWordSynonyms(String word) {
+    public Collection<String> getWordSynonyms(String word) {
         String sql = "SELECT synonym FROM word_synonyms WHERE word ILIKE ?;";
         SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, word);
         

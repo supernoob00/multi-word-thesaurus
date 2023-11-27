@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
+import java.util.Collection;
 import java.util.List;
 
 public class JdbcWordDaoTest {
@@ -32,25 +33,25 @@ public class JdbcWordDaoTest {
 
     @Test
     public void get_synonyms_returns_correct_synonyms() {
-        List<String> actual = dao.getWordSynonyms(TEST_WORD_1);
+        Collection<String> actual = dao.getWordSynonyms(TEST_WORD_1);
         Assert.assertEquals(TEST_WORD_SYNONYMS_1, actual);
     }
 
     @Test
     public void get_synonyms_ignores_case() {
-        List<String> actual = dao.getWordSynonyms("Ruction");
+        Collection<String> actual = dao.getWordSynonyms("Ruction");
         Assert.assertEquals(TEST_WORD_SYNONYMS_1, actual);
     }
 
     @Test
     public void nonexistent_word_returns_zero_synonyms() {
-        List<String> actual = dao.getWordSynonyms("ee");
+        Collection<String> actual = dao.getWordSynonyms("ee");
         Assert.assertTrue(actual.isEmpty());
     }
 
     @Test
     public void same_word_on_multiple_lines_includes_all_words() {
-        List<String> actual = dao.getWordSynonyms("cackle");
+        Collection<String> actual = dao.getWordSynonyms("cackle");
         Assert.assertTrue(actual.contains("carol"));
         Assert.assertTrue(actual.contains("Homeric laughter"));
     }

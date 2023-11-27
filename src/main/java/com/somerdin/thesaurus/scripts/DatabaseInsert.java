@@ -1,18 +1,19 @@
-package com.somerdin.thesaurus.util;
+package com.somerdin.thesaurus.scripts;
 
+import com.somerdin.thesaurus.util.SqlDataSourceUtil;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class DatabaseInsertUtil {
+public class DatabaseInsert {
     public static final String TEXT_FILE = "mobythes.txt";
     public static final int MAX_WORD_LENGTH = 50;
 
     private final JdbcTemplate template;
 
-    private DatabaseInsertUtil() {
+    private DatabaseInsert() {
         template = new JdbcTemplate(SqlDataSourceUtil.getDataSource());
     }
 
@@ -102,7 +103,7 @@ public class DatabaseInsertUtil {
     }
 
     public static void main(String[] args) {
-        DatabaseInsertUtil db = new DatabaseInsertUtil();
+        DatabaseInsert db = new DatabaseInsert();
         try {
             db.createSynonymsTable();
         } catch (IOException e) {

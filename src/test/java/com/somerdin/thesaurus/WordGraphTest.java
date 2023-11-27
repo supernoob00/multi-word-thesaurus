@@ -31,7 +31,7 @@ public class WordGraphTest {
     @Test
     public void single_word_graph_valid() {
         WordGraph graph = new WordGraph(dao);
-        graph.addWord(TEST_WORD_1);
+        graph.addWord(TEST_WORD_1, 1);
 
         // check graph size is correct
         Assert.assertEquals(TEST_WORD_SYNONYMS_1.size() + 1, graph.size());
@@ -47,5 +47,60 @@ public class WordGraphTest {
             Assert.assertEquals(1, originalWord.size());
             Assert.assertTrue(originalWord.contains(TEST_WORD_1));
         }
+
+        // check all search depth values are correct
+        Assert.assertEquals(1, graph.depthFrom(TEST_WORD_1));
+        for (String synonym : TEST_WORD_SYNONYMS_1) {
+            Assert.assertEquals(0, graph.depthFrom(synonym));
+        }
+    }
+
+    @Test
+    public void graph_single_word_added_with_depth_2_valid() {
+        WordGraph graph = new WordGraph(new MockWordDao());
+        graph.addWord("happy", 2);
+
+        // check graph size is correct
+        Assert.assertEquals(graph.depths.size(), 5);
+        Assert.assertEquals(graph.size(), 5);
+
+        // check each vertex has expected neighbors
+        Assert.assertEquals(graph.getNeighbors("happy"), Set.of("glad",
+                "mirthful", "in good spirits"));
+        Assert.assertEquals(graph.getNeighbors("glad"), Set.of("happy",
+                "mirthful", "excited"));
+        Assert.assertEquals(graph.getNeighbors("mirthful"), Set.of("happy",
+                "glad"));
+        Assert.assertEquals(graph.getNeighbors("in good spirits"), Set.of(
+                "happy"));
+        Assert.assertEquals(graph.getNeighbors("excited"), Set.of("glad"));
+    }
+
+    @Test
+    public void graph_two_words_added_with_depth_2_valid() {
+        WordGraph graph = new WordGraph(new MockWordDao());
+        graph.addWord("happy", 2);
+        graph.addWord("nervous", 2);
+
+        // check graph size is correct
+        Assert.assertEquals(9, graph.size());
+
+        // check neighbors of each vertex are correct
+        Assert.assertEquals(graph.getNeighbors("happy"), Set.of("glad",
+                "mirthful", "in good spirits"));
+        Assert.assertEquals(graph.getNeighbors("glad"), Set.of("happy",
+                "mirthful", "excited"));
+        Assert.assertEquals(graph.getNeighbors("mirthful"), Set.of("happy",
+                "glad"));
+        Assert.assertEquals(graph.getNeighbors("in good spirits"), Set.of(
+                "happy"));
+        Assert.assertEquals(graph.getNeighbors("excited"), Set.of("glad",
+                "anxious"));
+        Assert.assertEquals(graph.getNeighbors("anxious"), Set.of("excited",
+                "scared", "nervous"));
+        Assert.assertEquals(graph.getNeighbors("nervous"), Set.of("anxious",
+                "worried"));
+        Assert.assertEquals(graph.getNeighbors("worried"), Set.of("nervous"));
+        Assert.assertEquals(graph.getNeighbors("scared"), Set.of("anxious"));
     }
 }

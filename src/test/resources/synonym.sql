@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS words (
 
 CREATE TABLE IF NOT EXISTS word_synonyms (
 	word varchar(30),
+	--TODO: add constraint so word and synonym are not the same
 	synonym varchar(30),
 	PRIMARY KEY(word, synonym),
 	FOREIGN KEY (word) REFERENCES words (word)
