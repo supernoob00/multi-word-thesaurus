@@ -4,30 +4,45 @@ import com.somerdin.thesaurus.dao.WordDao;
 
 import java.util.*;
 
+/**
+ * Represents a undirected graph of words, where each connection means that
+ * one or both word(s) is a synonym of the other. The graph can be created
+ * and expanded by adding one or more "origin" words. When an origin word is
+ * added to the graph, all connected words, as well as connections to existing
+ * words in the graph, are created to a given depth.
+ */
 public class WordGraph {
-    public static final int SEARCH_DEPTH = 2;
-    /**
-     * Data class for a graph vertex, which holds both the word as well as
-     * the id (determined by the origin vertex). The id is kept so that only
-     * connections between vertices with different ids are made.
-     */
+    public static final int DEFAULT_SEARCH_DEPTH = 2;
 
+    // the DAO which represents the thesaurus used to construct the graph
     private WordDao dao;
+
+    // all words
+    private Set<String> origins;
+    // an undirected graph of words
     private Map<String, Set<String>> graph;
-    // map of all vertices to depth of search from that vertex (zero means
-    // it is a terminal vertex)
+    // map of all vertices to depth of search from that vertex; zero means it
+    // is a terminal vertex
     public Map<String, Integer> depths;
 
     public WordGraph(WordDao dao) {
         this.dao = dao;
+        this.origins = new HashSet<>();
         this.graph = new HashMap<>();
         this.depths = new HashMap<>();
     }
 
-    public void addWord(String word, int depth) {
-        if (depths.containsKey(word) && depths.get(word) == 0) {
-            return;
+    /**
+     *
+     * @param word
+     * @param depth
+     * @return false if word is already in set of added words, otherwise true
+     */
+    public boolean addWord(String word, int depth) {
+        if (origins.contains(word)) {
+            return false;
         }
+        origins.add(word);
 
         Set<String> searched = new HashSet<>();
         Queue<String> queue = new ArrayDeque<>();
@@ -35,6 +50,7 @@ public class WordGraph {
         queue.add(word);
         depths.put(word, depth);
 
+        // TODO: change for loop to while loop
         for (; depth > 0 && !queue.isEmpty(); depth--) {
             int size = queue.size();
             for (int k = 0; k < size; k++) {
@@ -61,6 +77,7 @@ public class WordGraph {
                 }
             }
         }
+        return true;
     }
 
     public Set<String> getNeighbors(String word) {
@@ -79,12 +96,8 @@ public class WordGraph {
         return depths.get(word);
     }
 
-    private boolean add(String origin, String dest) {
-        if (!graph.containsKey(origin)) {
-            throw new IllegalArgumentException("Origin node does not exist in" +
-                    " graph.");
-        }
-        return true;
+    public boolean isAddedWord(String word) {
+        return origins.contains(word);
     }
 
     @Override
