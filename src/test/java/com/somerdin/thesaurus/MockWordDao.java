@@ -8,17 +8,20 @@ public class MockWordDao implements WordDao {
     private Map<String, Set<String>> thesaurus = new HashMap<>();
 
     public MockWordDao() {
-        thesaurus.put("happy", Set.of("glad", "mirthful", "in good spirits"));
-        thesaurus.put("glad", Set.of("happy", "mirthful", "excited"));
-        thesaurus.put("excited", Set.of("anticipating"));
-        thesaurus.put("nervous", Set.of("anxious", "worried"));
-        thesaurus.put("anxious", Set.of("excited", "scared"));
-        thesaurus.put("scared", Set.of("nervous", "frightened"));
+        thesaurus.put("happy", new HashSet<>(List.of("glad", "mirthful", "in good " +
+                "spirits")));
+        thesaurus.put("glad", new HashSet<>(List.of("happy", "mirthful",
+                "excited")));
+        thesaurus.put("excited", new HashSet<>(List.of("anticipating")));
+        thesaurus.put("nervous", new HashSet<>(List.of("anxious", "worried")));
+        thesaurus.put("anxious", new HashSet<>(List.of("excited", "scared")));
+        thesaurus.put("scared", new HashSet<>(List.of("nervous",
+                "frightened")));
     }
 
     @Override
-    public Collection<String> getWordSynonyms(String word) {
-        Collection<String> synonyms = thesaurus.get(word);
+    public Set<String> getWordSynonyms(String word) {
+        Set<String> synonyms = thesaurus.get(word);
         return synonyms == null ? Collections.EMPTY_SET : synonyms;
     }
 }

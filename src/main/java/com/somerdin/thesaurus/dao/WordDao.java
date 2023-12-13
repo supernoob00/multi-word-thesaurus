@@ -1,7 +1,7 @@
 package com.somerdin.thesaurus.dao;
 
-import java.util.Collection;
+import java.util.Set;
 
 public interface WordDao {
-    Collection<String> getWordSynonyms(String word);
+    Set<String> getWordSynonyms(String word);
 }
