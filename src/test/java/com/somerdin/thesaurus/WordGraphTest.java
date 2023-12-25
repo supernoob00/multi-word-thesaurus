@@ -6,8 +6,12 @@ import com.somerdin.thesaurus.structures.WordGraph;
 import com.somerdin.thesaurus.util.SqlDataSourceUtil;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
 import java.util.HashSet;
@@ -16,14 +20,12 @@ import java.util.Set;
 import static com.somerdin.thesaurus.TestWords.TEST_WORD_1;
 import static com.somerdin.thesaurus.TestWords.TEST_WORD_SYNONYMS_1;
 
+@SpringBootTest
+@RunWith(SpringRunner.class)
 public class WordGraphTest {
 
+    @Autowired
     private WordDao dao;
-
-    public WordGraphTest() {
-        DataSource source = SqlDataSourceUtil.getDataSource();
-        dao = new JdbcWordDao(new JdbcTemplate(source));
-    }
 
     @Test
     public void single_word_graph_valid() {
@@ -103,16 +105,23 @@ public class WordGraphTest {
 
     @Test
     public void multiple_word_test_graph_real_database() {
-        SingleConnectionDataSource source = SqlDataSourceUtil.getDataSource();
-        JdbcTemplate template = new JdbcTemplate();
-        template.setDataSource(source);
-        WordGraph graph = new WordGraph(new JdbcWordDao(template));
+        WordGraph graph = new WordGraph(dao);
+        System.out.println("Completed");
 
         graph.addWord("melancholy", 2);
+        System.out.println("Completed");
         graph.addWord("pensive", WordGraph.DEFAULT_SEARCH_DEPTH);
         graph.addWord("depressed", WordGraph.DEFAULT_SEARCH_DEPTH);
         graph.addWord("happy", WordGraph.DEFAULT_SEARCH_DEPTH);
         System.out.println(graph.size());
         System.out.println(graph);
+    }
+
+    @Test
+    public void graph_formatter_returns_correct_string() {
+        WordGraph graph = new WordGraph(new MockWordDao());
+        graph.addWord("happy", 1);
+        graph.addWord("glad", 1);
+        System.out.println(graph.toDotFormat());
     }
 }

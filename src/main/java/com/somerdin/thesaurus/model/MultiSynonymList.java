@@ -4,14 +4,13 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-public class SynonymList {
-    @NotNull
-    @NotEmpty
+public class MultiSynonymList {
+    @NotNull @NotEmpty
     private List<String> words;
     @NotNull
     private List<String> synonyms;
 
-    public SynonymList() {
+    public MultiSynonymList() {
     }
 
     public List<String> getWords() {

@@ -1,6 +1,5 @@
 package com.somerdin.thesaurus.util;
 
-
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 public class SqlDataSourceUtil {

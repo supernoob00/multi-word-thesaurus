@@ -11,50 +11,28 @@ import java.util.*;
  * added to the graph, all connected words, as well as connections to existing
  * words in the graph, are created to a given depth.
  */
-public class WordGraph {
+public class WordGraph implements Iterable<Map.Entry<String, Set<String>>> {
     public static final int DEFAULT_SEARCH_DEPTH = 1;
 
-    public static String toDotFormat(WordGraph wg) {
-        wg.removeTerminalNodes();
-        StringBuilder sb = new StringBuilder();
-        sb.append("strict graph {\n");
-        for (Map.Entry<String, Set<String>> e : wg.graph.entrySet()) {
-
-            Iterator<String> it = e.getValue().iterator();
-            while (it.hasNext()) {
-                sb.append("\"").append(e.getKey()).append("\"");
-                sb.append(" -- ");
-                sb.append("\"").append(it.next()).append("\"\n");
-            }
-        }
-        sb.append("}");
-        return sb.toString();
-    }
-
     // the DAO which represents the thesaurus used to construct the graph
-    private WordDao dao;
+    private final WordDao wordDao;
 
     // all words
-    private Set<String> origins;
+    private final Set<String> origins;
     // an undirected graph of words
-    private Map<String, Set<String>> graph;
+    private final Map<String, Set<String>> graph;
     // map of all vertices to depth of search from that vertex; zero means it
     // is a terminal vertex
-    public Map<String, Integer> depths;
+    public final Map<String, Integer> depths;
+    private boolean terminalNodesRemoved;
 
-    public WordGraph(WordDao dao) {
-        this.dao = dao;
+    public WordGraph(WordDao wordDao) {
+        this.wordDao = wordDao;
         this.origins = new HashSet<>();
         this.graph = new HashMap<>();
         this.depths = new HashMap<>();
     }
 
-    /**
-     *
-     * @param word
-     * @param depth
-     * @return false if word is already in set of added words, otherwise true
-     */
     public boolean addWord(String word, int depth) {
         if (origins.contains(word)) {
             return false;
@@ -76,7 +54,7 @@ public class WordGraph {
                     searched.add(currWord);
                     depths.put(currWord, depth);
 
-                    Set<String> synonyms = dao.getWordSynonyms(currWord);
+                    Set<String> synonyms = wordDao.getWordSynonyms(currWord);
                     Set<String> currNeighbors = graph.get(currWord);
                     if (currNeighbors == null) {
                         graph.put(currWord, synonyms);
@@ -126,71 +104,73 @@ public class WordGraph {
         return origins.contains(word);
     }
 
-    private void removeParallelEdges() {
-        for (Map.Entry<String, Set<String>> e : graph.entrySet()) {
-            for (String neighbor : e.getValue()) {
-                Set<String> words = graph.get(neighbor);
-                if (words != null) {
-                    words.remove(e.getKey());
-                }
-            }
-        }
+    public boolean terminalNodesRemoved() {
+        return terminalNodesRemoved;
     }
 
-    private void removeTerminalNodes() {
-        Iterator<Map.Entry<String, Set<String>>> entrySetIt = graph.entrySet().iterator();
-        Set<String> toRemove = new HashSet<>();
+    public void removeTerminalNodes() {
+        terminalNodesRemoved = true;
+        Iterator<Map.Entry<String, Set<String>>> it = graph.entrySet().iterator();
 
-        while (entrySetIt.hasNext()) {
-            Map.Entry<String, Set<String>> entry = entrySetIt.next();
+        while (it.hasNext()) {
+            Map.Entry<String, Set<String>> entry = it.next();
+            String node = entry.getKey();
             Set<String> neighbors = entry.getValue();
 
-            Iterator<String> neighborIt = neighbors.iterator();
-            while (neighborIt.hasNext()) {
-                String next = neighborIt.next();
-                if (graph.get(next).size() <= 1) {
-                    neighborIt.remove();
-                    toRemove.add(next);
-                }
+            if (neighbors.size() == 1) {
+                String wordToRemove = neighbors.iterator().next();
+                graph.get(wordToRemove).remove(node);
+                it.remove();
             }
         }
-
-        for (String remove : toRemove) {
-            graph.remove(remove);
-        }
-    }
-
-    private void removeTerminalNodes2() {
-        Map<String, Integer> counts = new HashMap<>();
-
-        for (Map.Entry<String, Set<String>> e : graph.entrySet()) {
-            Integer count = counts.get(e.getKey());
-            if (count == null) {
-                counts.put(e.getKey(), e.getValue().size());
-            } else {
-                counts.replace(e.getKey(), count + e.getValue().size());
-            }
-            for (String neighbor : e.getValue()) {
-                Integer count2 = counts.get(neighbor);
-                if (count2 == null) {
-                    counts.put(neighbor, 1);
-                } else {
-                    counts.replace(neighbor, count2 + 1);
-                }
-            }
-        }
-
-        for (Map.Entry<String, Integer> e : counts.entrySet()) {
-            if (e.getValue() <= 1) {
-                graph.remove(e.getKey());
-            }
-        }
-        System.out.println(counts.toString());
-        System.out.println(graph);
     }
 
     @Override
     public String toString() {
         return graph.toString();
+    }
+
+    /**
+     * Returns the graph as a string in the DOT format; note that this method
+     * mutates the graph by removing all terminal nodes (i.e. nodes with only
+     * one connected edge)
+     *
+     * @return a string in DOT format representing the graph
+     */
+    public String toDotFormat() {
+        final String highlightOption = "[fillcolor=\"orange\", style=\"filled\"]";
+
+        Set<UnorderedPair<String>> connections = new HashSet<>();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("strict graph {\n");
+
+        for (String originWord : origins) {
+            sb.append(originWord).append(" " + highlightOption + "\n");
+        }
+
+        for (Map.Entry<String, Set<String>> e : graph.entrySet()) {
+            String nodeWord = e.getKey();
+
+            for (String neighborWord : e.getValue()) {
+                UnorderedPair<String> wordPair = new UnorderedPair<>(nodeWord, neighborWord);
+
+                if (!connections.contains(wordPair)) {
+
+                    sb.append("\"").append(nodeWord).append("\"");
+                    sb.append(" -- ");
+                    sb.append("\"").append(neighborWord).append("\"\n");
+
+                    connections.add(wordPair);
+                }
+            }
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    @Override
+    public Iterator<Map.Entry<String, Set<String>>> iterator() {
+        return graph.entrySet().iterator();
     }
 }
