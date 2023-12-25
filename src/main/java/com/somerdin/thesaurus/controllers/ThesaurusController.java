@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import java.util.Collection;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/words")
 public class ThesaurusController {
@@ -38,7 +39,7 @@ public class ThesaurusController {
     public SynonymList getSynonyms(@PathVariable String word) {
         Collection<String> synonyms = wordDao.getWordSynonyms(word);
         if (synonyms.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "That word does not exist in the database.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "That word does not exist in the database.");
         }
         return new SynonymList(word, synonyms);
     }

@@ -15,11 +15,11 @@ wordsSubmitForm.addEventListener("submit", async e => {
     }
 
     postWordsDto(wordsJson)
-    .then((response) => response.json())
-    .then((wordGraphData) => {
-        console.log(wordGraphData);
-        createNetwork(wordGraphData);
-    });
+        .then((response) => response.json())
+        .then((wordGraphData) => {
+            console.log(wordGraphData);
+            createNetwork(wordGraphData);
+        });
 });
 
 function createNetwork(wordGraphData) {
@@ -103,17 +103,38 @@ function createNetwork(wordGraphData) {
 
     network.on('click', function(properties) {
         const nodeId = network.getNodeAt({x:properties.event.srcEvent.offsetX, y:properties.event.srcEvent.offsetY});
+        if (nodeId === undefined) {
+            return;
+        }
         console.log(nodeId);
+        getSynonymList(nodeId)
+            .then(response => {
+                if (response.status === 404) {
+                    return Promise.reject("404 Not Found; no synonyms exist for given word");
+                } else {
+                    return response.json();
+                }
+            })
+            .then(synonymList => {
+                displaySynonyms(synonymList);
+            })
+            .catch(error => console.log(error));
     });
 }
 
 function displaySynonyms(synonymList) {
     const box = document.createElement("div");
+    box.className = "synonyms-container";
     for (const synonym of synonymList.synonyms) {
         const span = document.createElement("span");
         span.textContent = synonym;
         box.appendChild(span);
     }
+    document.body.appendChild(box);
+}
+
+function displayEmptySynonyms() {
+
 }
 
 const BASE_URL = 'http://localhost:8080';

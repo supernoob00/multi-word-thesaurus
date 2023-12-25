@@ -1,0 +1,11 @@
+.synonyms-container {
+    z-index: 1;
+    max-height: 500px;
+    overflow-y: auto;
+
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+}
