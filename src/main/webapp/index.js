@@ -1,9 +1,10 @@
 import {postWordsDto, getSynonymList} from "./service.js";
 
 const wordsSubmitForm = document.querySelector(".words-submit-form");
-
 wordsSubmitForm.addEventListener("submit", async e => {
     e.preventDefault();
+
+    removeSynonymsDisplay();
 
     // create request body from words inside form inputs
     let wordsJson = {
@@ -12,7 +13,8 @@ wordsSubmitForm.addEventListener("submit", async e => {
     const formData = new FormData(wordsSubmitForm);
     for (const entry of wordsSubmitForm) {
         if (entry.value !== "") {
-            wordsJson["words"].push(entry.value);
+            const formattedValue = entry.value.trim();
+            wordsJson["words"].push(formattedValue);
         }
     }
 
@@ -20,21 +22,14 @@ wordsSubmitForm.addEventListener("submit", async e => {
         .then((response) => response.json())
         .then((wordGraphData) => {
             console.log(wordGraphData);
-            createNetwork(wordGraphData);
+            changeNetworkData(wordGraphData);
         });
 });
 
-function createNetwork(wordGraphData) {
-    const dotString = wordGraphData.graph;
-    // create an array with nodes
-    const parsedData = vis.parseDOTNetwork(dotString);
-    // create a network
+const network = createNetwork();
+
+function createNetwork() {
     const container = document.getElementById('mynetwork');
-    // provide the data in the vis format
-    const data = {
-        nodes: parsedData.nodes,
-        edges: parsedData.edges
-    };
 
     const options = {
         autoResize: true,
@@ -93,7 +88,7 @@ function createNetwork(wordGraphData) {
             }
         },
     };
-    const network = new vis.Network(container, data, options);
+    const network = new vis.Network(container, null, options);
 
     network.on("hoverNode", function (params) {
         network.canvas.body.container.style.cursor = 'pointer'
@@ -103,12 +98,11 @@ function createNetwork(wordGraphData) {
         network.canvas.body.container.style.cursor = 'default'
     });
 
-    network.on('click', function(properties) {
-        const synonymDisplay = document.body.querySelector(".synonyms-container");
-        if (synonymDisplay !== null) {
-            document.body.removeChild(synonymDisplay);
-        }
+    network.on("click", function () {
+        removeSynonymsDisplay();
+    });
 
+    network.addEventListener('doubleClick', function(properties) {
         const nodeId = network.getNodeAt({x:properties.event.srcEvent.offsetX, y:properties.event.srcEvent.offsetY});
         if (nodeId === undefined) {
             return;
@@ -125,8 +119,23 @@ function createNetwork(wordGraphData) {
             .then(synonymList => {
                 displaySynonyms(synonymList);
             })
-            .catch(error => console.log(error));
+            .catch(error => {
+                console.log(error);
+                displayEmptySynonyms(nodeId);
+            });
     });
+    return network;
+}
+
+function changeNetworkData(wordGraphData) {
+    const dotString = wordGraphData.graph;
+    // create an array with nodes
+    const parsedData = vis.parseDOTNetwork(dotString);
+    const data = {
+        nodes: parsedData.nodes,
+        edges: parsedData.edges
+    };
+    network.setData(data);
 }
 
 function displaySynonyms(synonymList) {
@@ -140,8 +149,23 @@ function displaySynonyms(synonymList) {
     document.body.appendChild(box);
 }
 
-function displayEmptySynonyms() {
+function displayEmptySynonyms(word) {
+    const box = document.createElement("div");
+    box.className = "synonyms-container-empty";
+    const span = document.createElement("span");
+    span.textContent = `No synonyms were found for ${word}`;
+    box.appendChild(span);
+    document.body.appendChild(box);
+}
 
+function removeSynonymsDisplay() {
+    const synonymDisplay = document.body.querySelector(".synonyms-container");
+    const emptySynonymDisplay = document.body.querySelector(".empty-synonyms-container");
+    if (synonymDisplay !== null) {
+        document.body.removeChild(synonymDisplay);
+    } else if (emptySynonymDisplay !== null) {
+        document.body.removeChild(emptySynonymDisplay);
+    }
 }
 
 

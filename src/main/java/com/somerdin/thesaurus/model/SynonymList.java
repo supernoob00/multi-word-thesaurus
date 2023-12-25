@@ -2,6 +2,7 @@ package com.somerdin.thesaurus.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class SynonymList {
@@ -11,6 +12,7 @@ public class SynonymList {
     public SynonymList(String word, Collection<String> synonyms) {
         this.word = word;
         this.synonyms = new ArrayList<>(synonyms);
+        Collections.sort(this.synonyms);
     }
 
     public String getWord() {
