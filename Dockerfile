@@ -10,6 +10,13 @@ RUN mvn -f /home/app/pom.xml clean package
 # Package stage
 #
 FROM eclipse-temurin:18-jre-alpine
+
+ARG PGHOST
+ARG PGPORT
+ARG PGDATABASE
+ARG PGUSER
+ARG PGPASSWORD
+
 COPY --from=build /home/app/target/multi-word-thesaurus-1.0.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar","/app.jar"]
+ENTRYPOINT ["java", "-jar", "-DPGHOST=$PGHOST", "-DPGPORT=$PGPORT", "-DPGDATABASE=$PGDATABASE", "-DPGUSER=$PGUSER", "-DPGPASSWORD=$PGPASSWORD", "/app.jar"]
