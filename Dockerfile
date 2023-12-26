@@ -9,7 +9,7 @@ RUN mvn -f /home/app/pom.xml clean package
 #
 # Package stage
 #
-FROM openjdk:18-jre-slim
+FROM eclipse-temurin:18-jre-alpine
 COPY --from=build /home/app/target/multi-word-thesaurus-1.0.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar","/app.jar"]
