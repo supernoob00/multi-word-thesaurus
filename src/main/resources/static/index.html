@@ -1,0 +1,27 @@
+<html>
+<head>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div class="side-container">
+        <form class="words-submit-form">
+            <span>Words: </span>
+            <input name = "word" type="text">
+            <input name = "word" type="text">
+            <input name = "word" type="text">
+            <input name = "word" type="text">
+            <input name = "word" type="text">
+            <input class="hidden" name = "word" type="text">
+            <input class="hidden" name = "word" type="text">
+            <input class="hidden" name = "word" type="text">
+            <input class="hidden" name = "word" type="text">
+            <input class="hidden" name = "word" type="text">
+            <button class="word-submit-btn" type="submit">Submit</button>
+        </form>
+        <button class="expand-form-btn">Add More Words</button>
+    </div>
+    <div id="mynetwork"></div>
+</body>
+<script type="module" src="index.js" defer></script>
+</html>

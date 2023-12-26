@@ -26,7 +26,27 @@ wordsSubmitForm.addEventListener("submit", async e => {
         });
 });
 
+const expandFormBtn = document.querySelector(".expand-form-btn");
+expandFormBtn.addEventListener("click", event => {
+    toggleWordsSubmitForm();
+});
+
+function toggleWordsSubmitForm() {
+    const inputs = document.querySelectorAll(
+        ".words-submit-form > input");
+
+    for (let i = 5; i < 10; i++) {
+        if (inputs[i].classList.contains("hidden")) {
+            inputs[i].classList.remove("hidden");
+        } else {
+            inputs[i].classList.add("hidden");
+        }
+    }
+}
+
 const network = createNetwork();
+
+const sideContainer = document.body.querySelector(".side-container");
 
 function createNetwork() {
     const container = document.getElementById('mynetwork');
@@ -146,7 +166,7 @@ function displaySynonyms(synonymList) {
         span.textContent = synonym;
         box.appendChild(span);
     }
-    document.body.appendChild(box);
+    sideContainer.appendChild(box);
 }
 
 function displayEmptySynonyms(word) {
@@ -155,16 +175,17 @@ function displayEmptySynonyms(word) {
     const span = document.createElement("span");
     span.textContent = `No synonyms were found for ${word}`;
     box.appendChild(span);
-    document.body.appendChild(box);
+    sideContainer.appendChild(box);
 }
 
 function removeSynonymsDisplay() {
     const synonymDisplay = document.body.querySelector(".synonyms-container");
-    const emptySynonymDisplay = document.body.querySelector(".empty-synonyms-container");
+    const emptySynonymDisplay = document.body.querySelector(".synonyms-container-empty");
     if (synonymDisplay !== null) {
-        document.body.removeChild(synonymDisplay);
-    } else if (emptySynonymDisplay !== null) {
-        document.body.removeChild(emptySynonymDisplay);
+        synonymDisplay.parentNode.removeChild(synonymDisplay);
+    }
+    if (emptySynonymDisplay !== null) {
+        emptySynonymDisplay.parentNode.removeChild(emptySynonymDisplay);
     }
 }
 
