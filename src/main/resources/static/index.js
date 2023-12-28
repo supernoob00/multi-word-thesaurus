@@ -1,4 +1,5 @@
 import {postWordsDto, getSynonymList} from "./service.js";
+import * as vis from "vis-network";
 
 /* show example network if first-time visitor (no cookie exists) */
 window.onload = function() {
