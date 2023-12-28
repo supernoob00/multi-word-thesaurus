@@ -1,10 +1,9 @@
 <html>
 <head>
-    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 <body>
-    <div class="side-container">
+    <div class="left-side-container">
         <form class="words-submit-form">
             <span>Words: </span>
             <input name = "word" type="text">
@@ -17,9 +16,34 @@
             <input class="hidden" name = "word" type="text">
             <input class="hidden" name = "word" type="text">
             <input class="hidden" name = "word" type="text">
-            <button class="word-submit-btn" type="submit">Submit</button>
+            <input class="hidden" name = "word" type="text">
+            <input class="hidden" name = "word" type="text">
+            <input class="hidden" name = "word" type="text">
+            <input class="hidden" name = "word" type="text">
+            <input class="hidden" name = "word" type="text">
+            <button class="word-submit-btn">Submit</button>
+            <button class="clear-form-btn">Clear All</button>
+            <button class="expand-form-btn">More Words</button>
+            <button class="collapse-form-btn hidden">Fewer Words</button>
         </form>
-        <button class="expand-form-btn">Add More Words</button>
+    </div>
+    <div class="network-info-panel">
+        <div>
+            <ul class="counts">
+                <li class="node-count">Nodes: 0</li>
+                <li class="edge-count">Edges: 0</li>
+            </ul>
+        </div>
+        <br/>
+        <div class="complete-node-info-title" style="display: flex; justify-content:space-between; align-items: center">
+            <div>Counts:</div>
+            <button class="hide-counts-btn">Hide</button>
+        </div>
+        <div class="complete-node-info">
+            <ul>
+                <li>No nodes in network.</li>
+            </ul>
+        </div>
     </div>
     <div id="mynetwork"></div>
 </body>

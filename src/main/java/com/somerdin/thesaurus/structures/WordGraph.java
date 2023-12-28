@@ -89,6 +89,14 @@ public class WordGraph implements Iterable<Map.Entry<String, Set<String>>> {
         return graph.size();
     }
 
+    public int edgeCount() {
+        int edgeCount = 0;
+        for (Set<String> neighbors : graph.values()) {
+            edgeCount += neighbors.size();
+        }
+        return edgeCount / 2;
+    }
+
     public int depthFrom(String word) throws NoSuchElementException {
         if (!depths.containsKey(word)) {
             return 0;
@@ -146,7 +154,7 @@ public class WordGraph implements Iterable<Map.Entry<String, Set<String>>> {
         sb.append("strict graph {\n");
 
         for (String originWord : origins) {
-            sb.append(originWord).append(" " + highlightOption + "\n");
+            sb.append("\"" + originWord).append("\" " + highlightOption + "\n");
         }
 
         for (Map.Entry<String, Set<String>> e : graph.entrySet()) {

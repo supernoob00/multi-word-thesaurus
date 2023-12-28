@@ -16,31 +16,28 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/words")
 public class ThesaurusController {
-    private WordDao wordDao;
+    private final WordDao wordDao;
 
     public ThesaurusController(WordDao wordDao) {
         this.wordDao = wordDao;
     }
 
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    @RequestMapping(path = "", method = RequestMethod.POST)
-    public MultiSynonymList getAllSynonyms(@Valid @RequestBody WordsDto words) {
-        WordConnectionFinder finder = new WordConnectionFinder(wordDao);
-        finder.addWords(words.getWords());
-
-        MultiSynonymList synonyms = new MultiSynonymList();
-        synonyms.setWords(words.getWords());
-        synonyms.setSynonyms(finder.getConnectedWords());
-        return synonyms;
-    }
+//    @ResponseStatus(HttpStatus.ACCEPTED)
+//    @RequestMapping(path = "", method = RequestMethod.POST)
+//    public MultiSynonymList getAllSynonyms(@Valid @RequestBody WordsDto words) {
+//        WordConnectionFinder finder = new WordConnectionFinder(wordDao);
+//        finder.addWords(words.getWords());
+//
+//        MultiSynonymList synonyms = new MultiSynonymList();
+//        synonyms.setWords(words.getWords());
+//        synonyms.setSynonyms(finder.getConnectedWords());
+//        return synonyms;
+//    }
 
     @ResponseStatus(HttpStatus.OK)
     @RequestMapping(path = "/{word}", method = RequestMethod.GET)
     public SynonymList getSynonyms(@PathVariable String word) {
         Collection<String> synonyms = wordDao.getWordSynonyms(word);
-        if (synonyms.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "That word does not exist in the database.");
-        }
         return new SynonymList(word, synonyms);
     }
 }
