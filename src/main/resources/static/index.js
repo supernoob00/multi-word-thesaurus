@@ -1,26 +1,7 @@
 import {postWordsDto, getSynonymList} from "./service.js";
 import * as vis from "vis-network";
 
-/* show example network if first-time visitor (no cookie exists) */
-window.onload = function() {
-    const now = new Date().getTime();
-    const visitTime = localStorage.getItem("visit_timestamp");
-    if (now - visitTime > 7200000) {
-        localStorage.setItem("visit_timestamp", "now");
-
-        wordsSubmitFormInputs[0].value = "happy";
-        wordsSubmitFormInputs[1].value = "sad";
-        wordsSubmitFormInputs[2].value = "tasty";
-        wordsSubmitFormInputs[3].value = "wizard";
-        wordsSubmitFormInputs[4].value = "rock";
-
-        wordsSubmitForm.requestSubmit();
-    }
-}
-
-const network = createNetwork();
-let addedWords = new Set;
-
+/* DOM elements */
 const leftSideContainer = document.body.querySelector(".left-side-container");
 const wordsSubmitForm = document.querySelector(".words-submit-form");
 const wordsSubmitFormInputs = wordsSubmitForm.querySelectorAll("input");
@@ -30,10 +11,14 @@ const collapseFormBtn = document.querySelector(".collapse-form-btn");
 const networkInfoPanel = document.querySelector(".network-info-panel");
 const hideAllCountsBtn = document.querySelector(".hide-counts-btn");
 
+const network = createNetwork();
+let addedWords = new Set;
+
 /* bind event listeners to various elements */
+
+// event for form submission
 wordsSubmitForm.addEventListener("submit", async e => {
     e.preventDefault();
-
     removeSynonymsDisplay();
 
     // create request body from words inside form inputs
@@ -72,10 +57,14 @@ wordsSubmitForm.addEventListener("submit", async e => {
         wordsSubmitFormInputs[i].value = "";
     }
 });
+
+// event for form clear
 clearFormBtn.addEventListener("click", event => {
     event.preventDefault();
     wordsSubmitForm.reset();
 });
+
+// event for form expansion
 expandFormBtn.addEventListener("click", event => {
     event.preventDefault();
     expandWordsSubmitForm();
@@ -88,6 +77,8 @@ expandFormBtn.addEventListener("click", event => {
         expandFormBtn.textContent = "Even More Words";
     }
 });
+
+// event for form collapse
 collapseFormBtn.addEventListener("click", event => {
     event.preventDefault();
 
@@ -104,6 +95,8 @@ collapseFormBtn.addEventListener("click", event => {
     }
     expandFormBtn.classList.remove("hidden");
 });
+
+// event for word counts hide button
 hideAllCountsBtn.addEventListener("click", event => {
     const display = document.querySelector(".complete-node-info");
     if (display.classList.contains("hidden")) {
@@ -126,10 +119,6 @@ function expandWordsSubmitForm() {
 
     const hideBtn = document.body.querySelector(".collapse-form-btn");
     hideBtn.classList.remove("hidden");
-}
-
-function collapseWordsSubmitForm() {
-
 }
 
 function changeNetworkData(wordGraphData) {
@@ -260,15 +249,6 @@ function displaySynonyms(word, synonymList) {
     networkInfoPanel.appendChild(box);
 }
 
-function displayEmptySynonyms(word) {
-    const box = document.createElement("div");
-    box.className = "synonyms-container-empty";
-    const span = document.createElement("span");
-    span.textContent = `No synonyms were found for ${word}`;
-    box.appendChild(span);
-    leftSideContainer.appendChild(box);
-}
-
 function removeSynonymsDisplay() {
     const synonymDisplay = document.body.querySelector(".more-node-info-container");
     if (synonymDisplay !== null) {
@@ -370,14 +350,6 @@ function createNetwork() {
     return network;
 }
 
-function clearAll() {
-    const emptyData = {
-        nodes: null,
-        edges: null
-    }
-    network.setData(emptyData);
-}
-
 function createNodeLinkText(word) {
     const btn = document.createElement("button");
     btn.classList.add("text-button");
@@ -408,6 +380,23 @@ function showSynonyms(nodeId) {
         .catch(error => {
             console.log(error);
         });
+}
+
+/* show example network if first-time visitor (no cookie exists) */
+window.onload = function() {
+    const now = new Date().getTime();
+    const visitTime = localStorage.getItem("visit_timestamp");
+    if (now - visitTime > 7200000) {
+        localStorage.setItem("visit_timestamp", "now");
+
+        wordsSubmitFormInputs[0].value = "happy";
+        wordsSubmitFormInputs[1].value = "sad";
+        wordsSubmitFormInputs[2].value = "tasty";
+        wordsSubmitFormInputs[3].value = "wizard";
+        wordsSubmitFormInputs[4].value = "rock";
+
+        wordsSubmitForm.requestSubmit();
+    }
 }
 
 
